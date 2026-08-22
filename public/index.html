@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Talking Avatar Studio</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #121212; color: #fff; display: flex; justify-content: center; padding: 20px; }
+    .card { background: #1e1e1e; padding: 24px; border-radius: 12px; max-width: 450px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    h2 { margin-top: 0; color: #f3f3f3; }
+    label { display: block; margin: 12px 0 6px; font-size: 14px; color: #aaa; }
+    input, textarea, button { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #333; background: #2a2a2a; color: #fff; box-sizing: border-box; }
+    textarea { height: 100px; resize: vertical; }
+    button { background: #e05638; font-weight: bold; border: none; cursor: pointer; margin-top: 16px; transition: 0.2s; }
+    button:hover { background: #f06749; }
+    #status { margin-top: 16px; font-size: 14px; color: #ff9800; text-align: center; }
+    video { width: 100%; margin-top: 16px; border-radius: 8px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Avatar Parlante AI</h2>
+    <form id="avatarForm">
+      <label>1. Sube el rostro (PNG/JPG):</label>
+      <input type="file" id="imageInput" accept="image/*" required>
+
+      <label>2. Escribe el guion o la escena:</label>
+      <textarea id="scriptInput" placeholder="Ejemplo: Era una tarde nublada los adornos de Halloween por donde quieras..." required></textarea>
+
+      <button type="submit" id="submitBtn">Animar retrato</button>
+    </form>
+
+    <div id="status"></div>
+    <video id="resultVideo" controls></video>
+  </div>
+
+  <script>
+    const form = document.getElementById('avatarForm');
+    const statusDiv = document.getElementById('status');
+    const video = document.getElementById('resultVideo');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusDiv.textContent = 'Procesando animación... Esto puede tomar entre 15 y 30 segundos.';
+      video.style.display = 'none';
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('image', document.getElementById('imageInput').files[0]);
+      formData.append('script', document.getElementById('scriptInput').value);
+
+      try {
+        const response = await fetch('/api/animate', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.videoUrl) {
+          statusDiv.textContent = '¡Animación generada con éxito!';
+          video.src = data.videoUrl;
+          video.style.display = 'block';
+        } else {
+          statusDiv.textContent = 'Error: ' + (data.error || 'No se pudo generar el video');
+        }
+      } catch (err) {
+        statusDiv.textContent = 'Error de conexión con el servidor.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
