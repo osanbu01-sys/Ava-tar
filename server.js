@@ -32,16 +32,15 @@ app.post("/api/animate", upload.single("image"), async (req, res) => {
       return res.status(500).json({ error: "Falta configurar REPLICATE_API_TOKEN en el servidor." });
     }
 
-    // Convertir la imagen subida a formato Data URI base64
     const imageBase64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 
-    // Ejecutar el modelo de Lip-Sync en Replicate
+    // Llamada directa al slug del modelo activo en Replicate
     const output = await replicate.run(
-      "cjwbw/sadtalker:a25299281e0eb786e4f3a745edcf2be445472851cf536f906e57924610214c77",
+      "cjwbw/sadtalker",
       {
         input: {
           source_image: imageBase64,
-          driven_audio: script, // Texto o URL de audio
+          driven_audio: script,
           preprocess: "full",
           still: true
         }
