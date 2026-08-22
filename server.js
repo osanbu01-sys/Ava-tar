@@ -34,9 +34,9 @@ app.post("/api/animate", upload.single("image"), async (req, res) => {
 
     const imageBase64 = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
 
-    // Llamada directa al slug del modelo activo en Replicate
+    // Versión activa del modelo SadTalker
     const output = await replicate.run(
-      "cjwbw/sadtalker",
+      "cjwbw/sadtalker:a25299281e0eb786e4f3a745edcf2be445472851cf536f906e57924610214c77",
       {
         input: {
           source_image: imageBase64,
